@@ -10,6 +10,8 @@ contract VolcanoToken is ERC721("VolcanoToken", "VOL"), Ownable {
 
     uint256 tokenId;
 
+    mapping(address => Token[]) public tokenData;
+
     struct Token {
         uint256 timestamp;
         uint256 tokenId;
@@ -17,4 +19,17 @@ contract VolcanoToken is ERC721("VolcanoToken", "VOL"), Ownable {
     }
 
     constructor() {}
+
+    function mint(address _user, uint256 _tokenId) public onlyOwner {
+        _safeMint(_user, _tokenId);
+        
+        Token memory newTokenData = Token(block.timestamp, _tokenId, "Hello, World!");
+        tokenData[_user].push(newTokenData);
+
+        tokenId++;
+    }
+
+    function burn(uint256 _tokenId) public onlyOwner {
+        _burn(_tokenId);
+    }
 }
