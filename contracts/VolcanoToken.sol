@@ -8,28 +8,45 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract VolcanoToken is ERC721("VolcanoToken", "VOL"), Ownable {
 
-    uint256 tokenId;
+    uint256 public tokenId;
 
-    mapping(address => Token[]) public tokenData;
-
-    struct Token {
+    struct TokenData {
         uint256 timestamp;
         uint256 tokenId;
         string tokenURI;
     }
 
+    mapping(address => TokenData[]) public tokenData;
+    event newToken(uint256);
+
     constructor() {}
 
-    function mint(address _user, uint256 _tokenId) public onlyOwner {
-        _safeMint(_user, _tokenId);
+    function mint(address _user) public onlyOwner {
+        _safeMint(_user, tokenId);
         
-        Token memory newTokenData = Token(block.timestamp, _tokenId, "Hello, World!");
+        TokenData memory newTokenData = TokenData(block.timestamp, tokenId, "Hello, World!");
         tokenData[_user].push(newTokenData);
 
         tokenId++;
+        emit newToken(tokenId);
     }
 
-    function burn(uint256 _tokenId) public onlyOwner {
+    function burn(uint256 _tokenId) public {
+        require(msg.sender == ownerOf(_tokenId), "Caller is not owner");
+        removeTokenData(msg.sender, _tokenId);
         _burn(_tokenId);
     }
+
+    function removeTokenData(address _user, uint256 _tokenId) internal {
+        for (uint i=0; i < tokenData[_user].length; i++) {
+            if (tokenData[_user][i].tokenId == _tokenId) {
+                delete tokenData[_user][i];
+            }
+        }
+    }
+
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+        return tokenData[ownerOf(_tokenId)][_tokenId].tokenURI;
+    } 
 }
