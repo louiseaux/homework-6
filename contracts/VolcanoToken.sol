@@ -40,7 +40,9 @@ contract VolcanoToken is ERC721("VolcanoToken", "VOL"), Ownable {
     function removeTokenData(address _user, uint256 _tokenId) internal {
         for (uint i=0; i < tokenData[_user].length; i++) {
             if (tokenData[_user][i].tokenId == _tokenId) {
-                delete tokenData[_user][i];
+                tokenData[_user][i] = tokenData[_user][tokenData[_user].length-1];
+                tokenData[_user].pop();
+                break;
             }
         }
     }
