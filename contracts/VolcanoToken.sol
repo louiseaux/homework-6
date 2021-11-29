@@ -21,11 +21,11 @@ contract VolcanoToken is ERC721("VolcanoToken", "VOL"), Ownable {
 
     constructor() {}
 
-    function mint(address _user) public onlyOwner {
-        _safeMint(_user, tokenId);
+    function mint() public {
+        _safeMint(msg.sender, tokenId);
         
         TokenData memory newTokenData = TokenData(block.timestamp, tokenId, "Hello, World!");
-        tokenData[_user].push(newTokenData);
+        tokenData[msg.sender].push(newTokenData);
 
         tokenId++;
         emit newToken(tokenId);
